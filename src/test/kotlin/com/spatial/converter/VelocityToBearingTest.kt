@@ -1,6 +1,7 @@
 package com.spatial.converter
 
 import com.spatial.core.Vector3D
+import kotlin.math.sqrt
 import kotlin.test.*
 
 class VelocityToBearingTest {
@@ -223,19 +224,21 @@ class VelocityToBearingTest {
     @Test
     fun `precision test for various angles`() {
         // Test precise angle calculations at various known points
+        // Using trigonometric values: sin(30°) = 0.5, cos(30°) = sqrt(3)/2 ≈ 0.866
+        val sqrt3 = sqrt(3.0)
         val testCases = listOf(
-            Vector3D(5.0, 8.66, 0.0) to 30.0,    // 30° from North
-            Vector3D(8.66, 5.0, 0.0) to 60.0,    // 60° from North
-            Vector3D(8.66, -5.0, 0.0) to 120.0,  // 120° from North
-            Vector3D(5.0, -8.66, 0.0) to 150.0,  // 150° from North
-            Vector3D(-5.0, -8.66, 0.0) to 210.0, // 210° from North
-            Vector3D(-8.66, -5.0, 0.0) to 240.0, // 240° from North
-            Vector3D(-5.0, 8.66, 0.0) to 330.0   // 330° from North
+            Vector3D(5.0, 5.0 * sqrt3, 0.0) to 30.0,    // 30° from North
+            Vector3D(5.0 * sqrt3, 5.0, 0.0) to 60.0,    // 60° from North
+            Vector3D(5.0 * sqrt3, -5.0, 0.0) to 120.0,  // 120° from North
+            Vector3D(5.0, -5.0 * sqrt3, 0.0) to 150.0,  // 150° from North
+            Vector3D(-5.0, -5.0 * sqrt3, 0.0) to 210.0, // 210° from North
+            Vector3D(-5.0 * sqrt3, -5.0, 0.0) to 240.0, // 240° from North
+            Vector3D(-5.0, 5.0 * sqrt3, 0.0) to 330.0   // 330° from North
         )
         
         for ((velocity, expectedBearing) in testCases) {
             val result = converter.convert(velocity).getOrThrow()
-            assertEquals(expectedBearing, result.bearing, 1.0, 
+            assertEquals(expectedBearing, result.bearing, 0.01, 
                 "Velocity $velocity should have bearing ~$expectedBearing°")
         }
     }
